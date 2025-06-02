@@ -9,13 +9,13 @@
 
 global starting_long_mode
 extern kmain
+extern _init
 section .text
 bits 64
 starting_long_mode:
     call clear_data_segment_reg
-    ; print `OKAY` to screen
-    mov rax, 0x2f592f412f4b2f4f
-    mov qword [0xb8000], rax
+    call _init
+    call kmain
     hlt
 
 clear_data_segment_reg:

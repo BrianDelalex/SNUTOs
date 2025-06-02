@@ -4,6 +4,7 @@ iso := build/os-$(arch).iso
 
 cpp_source_path	:=	src/drivers	\
 					src/drivers/vga \
+					src/lib/		\
 					src/
 
 assembly_source_path	:=	src/arch/$(arch)/boot
@@ -17,6 +18,13 @@ cpp_source_files := $(wildcard $(addsuffix /*.cpp, $(cpp_source_path)))
 cpp_object_files := $(patsubst src/%, build/%, $(patsubst %.cpp, %.o, $(cpp_source_files)))
 
 CC := x86_64-elf-g++
+
+CRTI_OBJ=build/arch/$(arch)/global_ctors/crti.o
+CRTBEGIN_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtbegin.o)
+CRTEND_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtend.o)
+CRTN_OBJ=build/arch/$(arch)/global_ctors/crtn.o
+
+OBJ_LINK_LIST:=$(CRTI_OBJ) $(CRTBEGIN_OBJ) $(assembly_object_files) $(cpp_object_files) $(CRTEND_OBJ) $(CRTN_OBJ)
 
 CFLAGS :=	-nostdlib							\
 			-fno-builtin						\
@@ -48,11 +56,15 @@ CFLAGS :=	-nostdlib							\
 			-fno-rtti						\
 
 INCLUDES :=	-isystem $(realpath .)/inc	\
+			-isystem $(realpath .)/inc/lib
 
 
 .PHONY: all clean run iso
 
 all: $(kernel)
+
+test:
+	@echo $(OBJ_LINK_LIST)
 
 clean:
 	@rm -r build
@@ -71,8 +83,8 @@ $(iso): $(kernel) $(grub_cfg)
 	@grub-mkrescue -o $(iso) build/isofiles 2> /dev/null
 	@rm -r build/isofiles
 
-$(kernel): $(assembly_object_files) $(cpp_object_files) $(linker_script)
-	@x86_64-elf-ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(cpp_object_files)
+$(kernel): $(OBJ_LINK_LIST) $(linker_script)
+	@x86_64-elf-ld -n -T $(linker_script) -o $(kernel) $(OBJ_LINK_LIST)
 
 # compile assembly files
 build/arch/$(arch)/boot/%.o: src/arch/$(arch)/boot/%.asm
@@ -80,9 +92,14 @@ build/arch/$(arch)/boot/%.o: src/arch/$(arch)/boot/%.asm
 	@nasm -felf64 $< -o $@
 	@echo -e "	AS $@\n"
 
+# compile assembly files
+build/arch/$(arch)/global_ctors/%.o: src/arch/$(arch)/global_ctors/%.S
+	@mkdir -p $(shell dirname $@)
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo -e "	AS $@\n"
+
 # compile cpp files
 build/%.o: src/%.cpp
 	@mkdir -p $(shell dirname $@)
-	echo includes $(INCLUDES)
 	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 	@echo -e "	CC $@\n"
