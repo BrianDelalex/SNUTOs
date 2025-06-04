@@ -8,7 +8,7 @@
 \*******************************************************************/
 
 # include <drivers/vga/vga.hpp>
-# include <convert.hpp>
+# include <convert/to_string.hpp>
 
 VGA vga;
 
@@ -61,27 +61,46 @@ void VGA::WriteChar(const char c)
 void VGA::Write(const char *str)
 {
     for (int i = 0; str[i]; i++) {
-        WriteChar(str[i]);
-        IncrementPosition();
+        if (str[i] == '\n') {
+            NewLinePosition();
+        } else {
+            WriteChar(str[i]);
+            IncrementPosition();
+        }
     }
 }
+
+void VGA::Write(uint32_t nb)
+{
+    int max_char_size = 10;
+    char str[max_char_size + 1];
+    char *str2 = to_string(nb, str, max_char_size, 10);
+    Write(str2);
+}
+
+void VGA::Write(int32_t nb)
+{
+    int max_char_size = 11;
+    char str[max_char_size + 1];
+    char *str2 = to_string(nb, str, max_char_size, 10);
+    Write(str2);
+}
+
 
 void VGA::WriteAddress(uintptr_t ptr)
 {
     Write("0x");
+    char str[17];
+    char *str2 = to_hex_string(ptr, str);
+    Write(str2);
+}
+
+void VGA::WriteAddress(uint32_t ptr)
+{
+    Write("0x");
     char str[9];
-    char c;
-    for (int i = 7; i >= 0; i--) {
-        c = ptr % 16;
-        if (c > 10)
-            c += 55;
-        else
-            c += 48;
-        str[i] = c;
-        ptr = ptr / 16;
-    }
-    str[8] = 0;
-    Write(str);
+    char *str2 = to_hex_string(ptr, str);
+    Write(str2);
 }
 
 void VGA::SetPosition(uint8_t x, uint8_t y)
@@ -97,5 +116,16 @@ void VGA::IncrementPosition()
         m_pos.y++;
     } else {
         m_pos.x++;
+    }
+}
+
+void VGA::NewLinePosition()
+{
+    if (m_pos.y + 1 >= VGA_HEIGHT) {
+        m_pos.y = 0;
+        m_pos.x = 0;
+    } else {
+        m_pos.y++;
+        m_pos.x = 0;
     }
 }

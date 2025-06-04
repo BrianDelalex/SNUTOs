@@ -53,11 +53,15 @@ public:
     void Clear(void);
     void WriteChar(const char c);
     void Write(const char *str);
+    void Write(uint32_t nb);
+    void Write(int32_t nb);
     void WriteAddress(uintptr_t ptr);
+    void WriteAddress(uint32_t ptr);
     void SetPosition(uint8_t x, uint8_t y);
 private:
     void WriteToBuffer(uint16_t ch);
     void IncrementPosition(void);
+    void NewLinePosition(void);
 };
 
 extern "C" void vga_driver_initialize(void);

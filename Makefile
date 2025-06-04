@@ -2,12 +2,14 @@ arch ?= x86_64
 kernel := build/kernel-$(arch).bin
 iso := build/os-$(arch).iso
 
-cpp_source_path	:=	src/drivers	\
-					src/drivers/vga \
-					src/lib/		\
+cpp_source_path :=	src/drivers				\
+					src/drivers/vga 		\
+					src/drivers/multiboot	\
+					src/lib/				\
+					src/lib/convert			\
 					src/
 
-assembly_source_path	:=	src/arch/$(arch)/boot
+assembly_source_path :=	src/arch/$(arch)/boot
 
 linker_script := src/arch/$(arch)/boot/linker.ld
 grub_cfg := src/arch/$(arch)/boot/grub.cfg
@@ -26,36 +28,36 @@ CRTN_OBJ=build/arch/$(arch)/global_ctors/crtn.o
 
 OBJ_LINK_LIST:=$(CRTI_OBJ) $(CRTBEGIN_OBJ) $(assembly_object_files) $(cpp_object_files) $(CRTEND_OBJ) $(CRTN_OBJ)
 
-CFLAGS :=	-nostdlib							\
-			-fno-builtin						\
+CFLAGS :=	-nostdlib						\
+			-fno-builtin					\
 			-fno-stack-protector			\
 			-W								\
 			-Wall							\
 			-Wextra							\
-			-Winline							\
-			-Wpragmas							\
-			-Wuninitialized			\
-			-Wno-missing-braces			\
-			-ffreestanding			\
-			-Wcast-align			\
-			-Wwrite-strings			\
-			-fno-omit-frame-pointer			\
-			-mno-red-zone						\
-			-nostartfiles			\
-			-static							\
-			-Wparentheses						\
-			-Wunreachable-code				\
-			-Wunused							\
-			-Wmissing-field-initializers		\
-			-Wswitch-enum						\
-			-Wshadow							\
+			-Winline						\
+			-Wpragmas						\
 			-Wuninitialized					\
-			-Wno-logical-not-parentheses		\
+			-Wno-missing-braces				\
+			-ffreestanding					\
+			-Wcast-align					\
+			-Wwrite-strings					\
+			-fno-omit-frame-pointer			\
+			-mno-red-zone					\
+			-nostartfiles					\
+			-static							\
+			-Wparentheses					\
+			-Wunreachable-code				\
+			-Wunused						\
+			-Wmissing-field-initializers	\
+			-Wswitch-enum					\
+			-Wshadow						\
+			-Wuninitialized					\
+			-Wno-logical-not-parentheses	\
 			-O2								\
 			-fno-exceptions					\
 			-fno-rtti						\
 
-INCLUDES :=	-isystem $(realpath .)/inc	\
+INCLUDES :=	-isystem $(realpath .)/inc		\
 			-isystem $(realpath .)/inc/lib
 
 
