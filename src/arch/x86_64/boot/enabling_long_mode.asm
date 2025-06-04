@@ -12,9 +12,13 @@ extern starting_long_mode
 section .text
 bits 32
 enabling_long_mode:
+    push edi
+    push esi
     call set_up_page_tables
     call enable_paging
     lgdt [gdt64.pointer]
+    pop esi
+    pop edi
 
     jmp gdt64.code:starting_long_mode
 

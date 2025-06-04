@@ -13,8 +13,12 @@ extern _init
 section .text
 bits 64
 starting_long_mode:
+    push rdi
+    push rsi
     call clear_data_segment_reg
     call _init
+    pop rsi
+    pop rdi
     call kmain
     hlt
 

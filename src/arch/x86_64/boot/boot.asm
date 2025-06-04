@@ -15,10 +15,13 @@ section .text
 bits 32
 start:
     mov esp, stack_top
+    push eax
+    push ebx
     call check_multiboot2_magic_number
     call check_cpuid
     call check_long_mode
-
+    pop esi
+    pop edi
     call enabling_long_mode
 
 check_multiboot2_magic_number:
