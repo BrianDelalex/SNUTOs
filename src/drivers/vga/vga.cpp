@@ -87,7 +87,7 @@ void VGA::Write(int32_t nb)
 }
 
 
-void VGA::WriteAddress(uintptr_t ptr)
+void VGA::WriteAddress(uint64_t ptr)
 {
     Write("0x");
     char str[17];
@@ -107,6 +107,12 @@ void VGA::SetPosition(uint8_t x, uint8_t y)
 {
     m_pos.x = x;
     m_pos.y = y;
+}
+
+void VGA::SetColor(uint8_t bg, uint8_t fg)
+{
+    m_bg = bg;
+    m_fg = fg;
 }
 
 void VGA::IncrementPosition()

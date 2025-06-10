@@ -8,7 +8,7 @@
 \*******************************************************************/
 
 #ifndef VGA_DRIVER_HPP
-# define VGA_DRIVER_HPP
+#define VGA_DRIVER_HPP
 
 # include <cstdint>
 
@@ -55,9 +55,10 @@ public:
     void Write(const char *str);
     void Write(uint32_t nb);
     void Write(int32_t nb);
-    void WriteAddress(uintptr_t ptr);
+    void WriteAddress(uint64_t ptr);
     void WriteAddress(uint32_t ptr);
     void SetPosition(uint8_t x, uint8_t y);
+    void SetColor(uint8_t bg, uint8_t fg);
 private:
     void WriteToBuffer(uint16_t ch);
     void IncrementPosition(void);
