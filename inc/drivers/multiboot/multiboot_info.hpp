@@ -8,36 +8,36 @@
 \*******************************************************************/
 
 #ifndef MULTIBOOT_INFO
-# define MULTIBOOT_INFO
+#define MULTIBOOT_INFO
 
 # include <cstdint>
 
-#define MULTIBOOT_INFO_ALIGN                    0x00000008
+# define MULTIBOOT_INFO_ALIGN                    0x00000008
 
 /* Multiboot tags macros */
-#define MULTIBOOT_TAG_ALIGN                  8
-#define MULTIBOOT_TAG_TYPE_END               0
-#define MULTIBOOT_TAG_TYPE_CMDLINE           1
-#define MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME  2
-#define MULTIBOOT_TAG_TYPE_MODULE            3
-#define MULTIBOOT_TAG_TYPE_BASIC_MEMINFO     4
-#define MULTIBOOT_TAG_TYPE_BOOTDEV           5
-#define MULTIBOOT_TAG_TYPE_MMAP              6
-#define MULTIBOOT_TAG_TYPE_VBE               7
-#define MULTIBOOT_TAG_TYPE_FRAMEBUFFER       8
-#define MULTIBOOT_TAG_TYPE_ELF_SECTIONS      9
-#define MULTIBOOT_TAG_TYPE_APM               10
-#define MULTIBOOT_TAG_TYPE_EFI32             11
-#define MULTIBOOT_TAG_TYPE_EFI64             12
-#define MULTIBOOT_TAG_TYPE_SMBIOS            13
-#define MULTIBOOT_TAG_TYPE_ACPI_OLD          14
-#define MULTIBOOT_TAG_TYPE_ACPI_NEW          15
-#define MULTIBOOT_TAG_TYPE_NETWORK           16
-#define MULTIBOOT_TAG_TYPE_EFI_MMAP          17
-#define MULTIBOOT_TAG_TYPE_EFI_BS            18
-#define MULTIBOOT_TAG_TYPE_EFI32_IH          19
-#define MULTIBOOT_TAG_TYPE_EFI64_IH          20
-#define MULTIBOOT_TAG_TYPE_LOAD_BASE_ADDR    21
+# define MULTIBOOT_TAG_ALIGN                  8
+# define MULTIBOOT_TAG_TYPE_END               0
+# define MULTIBOOT_TAG_TYPE_CMDLINE           1
+# define MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME  2
+# define MULTIBOOT_TAG_TYPE_MODULE            3
+# define MULTIBOOT_TAG_TYPE_BASIC_MEMINFO     4
+# define MULTIBOOT_TAG_TYPE_BOOTDEV           5
+# define MULTIBOOT_TAG_TYPE_MMAP              6
+# define MULTIBOOT_TAG_TYPE_VBE               7
+# define MULTIBOOT_TAG_TYPE_FRAMEBUFFER       8
+# define MULTIBOOT_TAG_TYPE_ELF_SECTIONS      9
+# define MULTIBOOT_TAG_TYPE_APM               10
+# define MULTIBOOT_TAG_TYPE_EFI32             11
+# define MULTIBOOT_TAG_TYPE_EFI64             12
+# define MULTIBOOT_TAG_TYPE_SMBIOS            13
+# define MULTIBOOT_TAG_TYPE_ACPI_OLD          14
+# define MULTIBOOT_TAG_TYPE_ACPI_NEW          15
+# define MULTIBOOT_TAG_TYPE_NETWORK           16
+# define MULTIBOOT_TAG_TYPE_EFI_MMAP          17
+# define MULTIBOOT_TAG_TYPE_EFI_BS            18
+# define MULTIBOOT_TAG_TYPE_EFI32_IH          19
+# define MULTIBOOT_TAG_TYPE_EFI64_IH          20
+# define MULTIBOOT_TAG_TYPE_LOAD_BASE_ADDR    21
 
 
 /* Hold pointer to usefull tags */
@@ -94,11 +94,11 @@ struct mb_bios_boot_device_tag {
 struct mb_memory_map_entry {
     uint64_t base_addr;
     uint64_t lenght;
-#define MULTIBOOT_MEMORY_AVAILABLE              1
-#define MULTIBOOT_MEMORY_RESERVED               2
-#define MULTIBOOT_MEMORY_ACPI_RECLAIMABLE       3
-#define MULTIBOOT_MEMORY_NVS                    4
-#define MULTIBOOT_MEMORY_BADRAM                 5
+# define MULTIBOOT_MEMORY_AVAILABLE              1
+# define MULTIBOOT_MEMORY_RESERVED               2
+# define MULTIBOOT_MEMORY_ACPI_RECLAIMABLE       3
+# define MULTIBOOT_MEMORY_NVS                    4
+# define MULTIBOOT_MEMORY_BADRAM                 5
     uint32_t type;
     uint32_t reserved;
 } __attribute__((packed));
@@ -130,9 +130,9 @@ struct mb_framebuffer_info_tag_common {
     uint32_t framebuffer_width;
     uint32_t framebuffer_height;
     uint8_t framebuffer_bpp;
-#define MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED      0
-#define MULTIBOOT_FRAMEBUFFER_TYPE_RGB          1
-#define MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT     2
+# define MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED      0
+# define MULTIBOOT_FRAMEBUFFER_TYPE_RGB          1
+# define MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT     2
     uint8_t framebuffer_type;
     uint8_t reserved;
 };

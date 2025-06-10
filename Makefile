@@ -2,20 +2,23 @@ arch ?= x86_64
 kernel := build/kernel-$(arch).bin
 iso := build/os-$(arch).iso
 
-cpp_source_path :=	src/drivers				\
-					src/drivers/vga 		\
-					src/drivers/multiboot	\
-					src/lib/				\
-					src/lib/convert			\
-					src/
+cpp_source_path :=	src/						\
+					src/drivers					\
+					src/drivers/vga 			\
+					src/drivers/multiboot		\
+					src/drivers/interrupts		\
+					src/drivers/pic				\
+					src/lib/					\
+					src/lib/convert				\
+					src/arch/$(arch)/interrupts	\
 
-assembly_source_path :=	src/arch/$(arch)/boot
+assembly_source_path :=	src/arch/$(arch)/boot		\
+						src/arch/$(arch)/interrupts	\
 
 linker_script := src/arch/$(arch)/boot/linker.ld
 grub_cfg := src/arch/$(arch)/boot/grub.cfg
 assembly_source_files := $(wildcard $(addsuffix /*.asm, $(assembly_source_path)))
-assembly_object_files := $(patsubst src/arch/$(arch)/boot/%.asm, \
-	build/arch/$(arch)/boot/%.o, $(assembly_source_files))
+assembly_object_files := $(patsubst src/%, build/%, $(patsubst %.asm, %.o, $(assembly_source_files)))
 cpp_source_files := $(wildcard $(addsuffix /*.cpp, $(cpp_source_path)))
 cpp_object_files := $(patsubst src/%, build/%, $(patsubst %.cpp, %.o, $(cpp_source_files)))
 
@@ -58,7 +61,8 @@ CFLAGS :=	-nostdlib						\
 			-fno-rtti						\
 
 INCLUDES :=	-isystem $(realpath .)/inc		\
-			-isystem $(realpath .)/inc/lib
+			-isystem $(realpath .)/inc/lib	\
+			-isystem /usr/include
 
 
 .PHONY: all clean run iso
@@ -89,9 +93,9 @@ $(kernel): $(OBJ_LINK_LIST) $(linker_script)
 	@x86_64-elf-ld -n -T $(linker_script) -o $(kernel) $(OBJ_LINK_LIST)
 
 # compile assembly files
-build/arch/$(arch)/boot/%.o: src/arch/$(arch)/boot/%.asm
+build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
 	@mkdir -p $(shell dirname $@)
-	@nasm -felf64 $< -o $@
+	@nasm -I./inc -felf64 $< -o $@
 	@echo -e "	AS $@\n"
 
 # compile assembly files

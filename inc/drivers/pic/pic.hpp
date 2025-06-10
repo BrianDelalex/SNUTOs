@@ -7,14 +7,13 @@
 **
 \*******************************************************************/
 
-#ifndef TO_STRING_HPP
-#define TO_STRING_HPP
+#ifndef PIC_HPP
+#define PIC_HPP
 
 # include <cstdint>
 
-char *to_string(uint32_t nb, char *str, uint32_t max_char_size, uint32_t base);
-char *to_string(int32_t nb, char *str, uint32_t max_char_size, uint32_t base);
-char *to_hex_string(uintptr_t nb, char *str);
-char *to_hex_string(uint32_t nb, char *str);
+# include <drivers/pic/constants.hpp>
 
-#endif //!TO_STRING_HPP
+void PIC_remap(uint8_t offset1, uint8_t offset2);
+
+#endif //!PIC_HPP

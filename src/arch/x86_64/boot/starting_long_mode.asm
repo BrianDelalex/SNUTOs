@@ -8,8 +8,10 @@
 ;********************************************************************
 
 global starting_long_mode
+global load_idt
 extern kmain
 extern _init
+extern initialize_IDT
 section .text
 bits 64
 starting_long_mode:
@@ -17,6 +19,7 @@ starting_long_mode:
     push rsi
     call clear_data_segment_reg
     call _init
+    call initialize_IDT
     pop rsi
     pop rdi
     call kmain
@@ -29,4 +32,10 @@ clear_data_segment_reg:
     mov es, ax
     mov fs, ax
     mov gs, ax
+    ret
+
+load_idt:
+    cli
+    lidt [rdi]
+    sti
     ret
