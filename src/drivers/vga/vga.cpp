@@ -86,6 +86,14 @@ void VGA::Write(int32_t nb)
     Write(str2);
 }
 
+void VGA::Write(uint64_t nb)
+{
+    int max_char_size = 20;
+    char str[max_char_size + 1];
+    char *str2 = to_string(nb, str, max_char_size, 10);
+    Write(str2);
+}
+
 
 void VGA::WriteAddress(uint64_t ptr)
 {

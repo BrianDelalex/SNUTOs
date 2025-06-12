@@ -55,6 +55,7 @@ public:
     void Write(const char *str);
     void Write(uint32_t nb);
     void Write(int32_t nb);
+    void Write(uint64_t nb);
     void WriteAddress(uint64_t ptr);
     void WriteAddress(uint32_t ptr);
     void SetPosition(uint8_t x, uint8_t y);
