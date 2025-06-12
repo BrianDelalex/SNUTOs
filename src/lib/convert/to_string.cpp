@@ -9,6 +9,22 @@
 
 # include <convert/to_string.hpp>
 
+char *to_string(uint64_t nb, char *str, uint32_t max_char_size, uint32_t base)
+{
+    int i = max_char_size - 1;
+    if (nb == 0) {
+        str[i] = '0';
+        return (&(str[i]));
+    }
+    for (; i >= 0 && nb > 0; i--) {
+        str[i] = ((char)(nb % base) + 48);
+        nb = nb / base;
+    }
+
+    str[max_char_size] = 0;
+    return (&(str[i + 1]));
+}
+
 char *to_string(uint32_t nb, char *str, uint32_t max_char_size, uint32_t base)
 {
     int i = max_char_size - 1;

@@ -12,6 +12,7 @@
 
 # include <cstdint>
 
+char *to_string(uint64_t nb, char *str, uint32_t max_char_size, uint32_t base);
 char *to_string(uint32_t nb, char *str, uint32_t max_char_size, uint32_t base);
 char *to_string(int32_t nb, char *str, uint32_t max_char_size, uint32_t base);
 char *to_hex_string(uintptr_t nb, char *str);
