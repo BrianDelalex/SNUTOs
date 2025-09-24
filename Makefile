@@ -8,6 +8,7 @@ cpp_source_path :=	src/						\
 					src/drivers/multiboot		\
 					src/drivers/interrupts		\
 					src/drivers/pic				\
+					src/drivers/serial			\
 					src/lib/					\
 					src/lib/convert				\
 					src/arch/$(arch)/interrupts	\
@@ -59,6 +60,7 @@ CFLAGS :=	-nostdlib						\
 			-O2								\
 			-fno-exceptions					\
 			-fno-rtti						\
+			-g
 
 INCLUDES :=	-isystem $(realpath .)/inc		\
 			-isystem $(realpath .)/inc/lib	\
@@ -90,7 +92,7 @@ $(iso): $(kernel) $(grub_cfg)
 	@rm -r build/isofiles
 
 $(kernel): $(OBJ_LINK_LIST) $(linker_script)
-	@x86_64-elf-ld -n -T $(linker_script) -o $(kernel) $(OBJ_LINK_LIST)
+	@x86_64-elf-ld -g -n -T $(linker_script) -o $(kernel) $(OBJ_LINK_LIST)
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm

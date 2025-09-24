@@ -2,6 +2,8 @@
    designated as the entry point. */
 ENTRY(start)
 
+OUTPUT_FORMAT(elf64-x86-64)
+
 /* Tell where the various sections of the object files will be put in the final
    kernel image. */
 SECTIONS
@@ -34,4 +36,6 @@ SECTIONS
 		*(COMMON)
 		*(.bss)
 	}
+
+    PROVIDE(KERNEL_END = .);
 }

@@ -35,14 +35,14 @@ extern "C" int init_serial()
 
 /*
     Check the THRE bit (Transmitter holding register empty).
-    If it is set that mean the transmission buffer is empty (data can be sent)  
+    If it is set that mean the transmission buffer is empty (data can be sent)
 */
 int is_transmit_empty()
 {
     return (inb(IOPORT_COM1 + 5) & 0x20);
 }
 
-void write_serial(char *str)
+void write_serial(const char *str)
 {
     for (int i = 0; str[i]; i++) {
         while (is_transmit_empty() == 0); // Wait until the transmission buffer is empty.
