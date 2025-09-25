@@ -12,6 +12,10 @@ cpp_source_path :=	src/						\
 					src/lib/					\
 					src/lib/convert				\
 					src/arch/$(arch)/interrupts	\
+					src/arch/$(arch)/memory		\
+
+cpp_boot_source :=	src/arch/$(arch)/boot/setup_paging.c
+cpp_boot_object :=	build/arch/$(arch)/boot/setup_paging.o
 
 assembly_source_path :=	src/arch/$(arch)/boot		\
 						src/arch/$(arch)/interrupts	\
@@ -26,13 +30,13 @@ cpp_object_files := $(patsubst src/%, build/%, $(patsubst %.cpp, %.o, $(cpp_sour
 CC := x86_64-elf-g++
 
 CRTI_OBJ=build/arch/$(arch)/global_ctors/crti.o
-CRTBEGIN_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtbegin.o)
-CRTEND_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtend.o)
+CRTBEGIN_OBJ:=$(shell $(CC) $(CPPFLAGS) -print-file-name=crtbegin.o)
+CRTEND_OBJ:=$(shell $(CC) $(CPPFLAGS) -print-file-name=crtend.o)
 CRTN_OBJ=build/arch/$(arch)/global_ctors/crtn.o
 
 OBJ_LINK_LIST:=$(CRTI_OBJ) $(CRTBEGIN_OBJ) $(assembly_object_files) $(cpp_object_files) $(CRTEND_OBJ) $(CRTN_OBJ)
 
-CFLAGS :=	-nostdlib						\
+CPPFLAGS :=	-nostdlib						\
 			-fno-builtin					\
 			-fno-stack-protector			\
 			-W								\
@@ -60,6 +64,34 @@ CFLAGS :=	-nostdlib						\
 			-O2								\
 			-fno-exceptions					\
 			-fno-rtti						\
+			-g
+
+CFLAGS :=	-nostdlib						\
+			-fno-builtin					\
+			-fno-stack-protector			\
+			-W								\
+			-Wall							\
+			-Wextra							\
+			-Winline						\
+			-Wpragmas						\
+			-Wuninitialized					\
+			-Wno-missing-braces				\
+			-ffreestanding					\
+			-Wcast-align					\
+			-Wwrite-strings					\
+			-fno-omit-frame-pointer			\
+			-mno-red-zone					\
+			-nostartfiles					\
+			-static							\
+			-Wparentheses					\
+			-Wunreachable-code				\
+			-Wunused						\
+			-Wmissing-field-initializers	\
+			-Wswitch-enum					\
+			-Wshadow						\
+			-Wuninitialized					\
+			-Wno-logical-not-parentheses	\
+			-O0								\
 			-g
 
 INCLUDES :=	-isystem $(realpath .)/inc		\
@@ -91,8 +123,8 @@ $(iso): $(kernel) $(grub_cfg)
 	@grub-mkrescue -o $(iso) build/isofiles 2> /dev/null
 	@rm -r build/isofiles
 
-$(kernel): $(OBJ_LINK_LIST) $(linker_script)
-	@x86_64-elf-ld -g -n -T $(linker_script) -o $(kernel) $(OBJ_LINK_LIST)
+$(kernel): $(OBJ_LINK_LIST) $(linker_script) $(cpp_boot_object)
+	@x86_64-elf-ld -g -n -T $(linker_script) -o $(kernel) $(OBJ_LINK_LIST) $(cpp_boot_object)
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
@@ -103,11 +135,16 @@ build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
 # compile assembly files
 build/arch/$(arch)/global_ctors/%.o: src/arch/$(arch)/global_ctors/%.S
 	@mkdir -p $(shell dirname $@)
-	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CPPFLAGS) -c $< -o $@
 	@echo -e "	AS $@\n"
 
 # compile cpp files
 build/%.o: src/%.cpp
 	@mkdir -p $(shell dirname $@)
-	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	@$(CC) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
 	@echo -e "	CC $@\n"
+
+$(cpp_boot_object): $(cpp_boot_source)
+	@echo -e "  CC -m32 $@\n"
+	@x86_64-elf-gcc -DBOOT=1 -m32 -march=x86-64 $(CFLAGS) $(INCLUDES) -c $< -o $@
+	@x86_64-elf-objcopy -O elf64-x86-64 $@
