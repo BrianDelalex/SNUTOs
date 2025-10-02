@@ -23,6 +23,7 @@ extern "C" void irq0_handler()
 /* Keyboard */
 extern "C" void irq1_handler()
 {
+    inb(PS2_DATA_PORT);
     END_OF_INTERRUPT();
 }
 

@@ -7,10 +7,11 @@
 **
 \*******************************************************************/
 
-# include <cstdint>
+# include <stdint.h>
 # include <sys/io.h>
 
 # include <drivers/vga/vga.hpp>
+# include <drivers/serial/serial.hpp>
 # include <drivers/pic/constants.hpp>
 
 extern VGA vga;
@@ -21,6 +22,7 @@ extern VGA vga;
 extern "C" void exception0_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write("Divide Error at: ");
@@ -31,6 +33,7 @@ extern "C" void exception0_handler(uint64_t exceptionAddr)
 extern "C" void exception1_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -41,6 +44,7 @@ extern "C" void exception1_handler(uint64_t exceptionAddr)
 extern "C" void exception2_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -51,6 +55,7 @@ extern "C" void exception2_handler(uint64_t exceptionAddr)
 extern "C" void exception3_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -61,6 +66,7 @@ extern "C" void exception3_handler(uint64_t exceptionAddr)
 extern "C" void exception4_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -71,6 +77,7 @@ extern "C" void exception4_handler(uint64_t exceptionAddr)
 extern "C" void exception5_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -81,6 +88,7 @@ extern "C" void exception5_handler(uint64_t exceptionAddr)
 extern "C" void exception6_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -91,6 +99,7 @@ extern "C" void exception6_handler(uint64_t exceptionAddr)
 extern "C" void exception7_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -101,6 +110,7 @@ extern "C" void exception7_handler(uint64_t exceptionAddr)
 extern "C" void exception8_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -111,6 +121,7 @@ extern "C" void exception8_handler(uint64_t exceptionAddr)
 extern "C" void exception9_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -121,6 +132,7 @@ extern "C" void exception9_handler(uint64_t exceptionAddr)
 extern "C" void exception10_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -131,6 +143,7 @@ extern "C" void exception10_handler(uint64_t exceptionAddr)
 extern "C" void exception11_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -141,6 +154,7 @@ extern "C" void exception11_handler(uint64_t exceptionAddr)
 extern "C" void exception12_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -151,6 +165,7 @@ extern "C" void exception12_handler(uint64_t exceptionAddr)
 extern "C" void exception13_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -161,6 +176,7 @@ extern "C" void exception13_handler(uint64_t exceptionAddr)
 extern "C" void exception14_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -171,6 +187,7 @@ extern "C" void exception14_handler(uint64_t exceptionAddr)
 extern "C" void exception15_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -181,6 +198,7 @@ extern "C" void exception15_handler(uint64_t exceptionAddr)
 extern "C" void exception16_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -191,6 +209,7 @@ extern "C" void exception16_handler(uint64_t exceptionAddr)
 extern "C" void exception17_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -201,6 +220,7 @@ extern "C" void exception17_handler(uint64_t exceptionAddr)
 extern "C" void exception18_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -211,6 +231,7 @@ extern "C" void exception18_handler(uint64_t exceptionAddr)
 extern "C" void exception19_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -221,6 +242,7 @@ extern "C" void exception19_handler(uint64_t exceptionAddr)
 extern "C" void exception20_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -231,6 +253,7 @@ extern "C" void exception20_handler(uint64_t exceptionAddr)
 extern "C" void exception21_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -241,6 +264,7 @@ extern "C" void exception21_handler(uint64_t exceptionAddr)
 extern "C" void exception22_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -251,6 +275,7 @@ extern "C" void exception22_handler(uint64_t exceptionAddr)
 extern "C" void exception23_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -261,6 +286,7 @@ extern "C" void exception23_handler(uint64_t exceptionAddr)
 extern "C" void exception24_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -271,6 +297,7 @@ extern "C" void exception24_handler(uint64_t exceptionAddr)
 extern "C" void exception25_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -281,6 +308,7 @@ extern "C" void exception25_handler(uint64_t exceptionAddr)
 extern "C" void exception26_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -291,6 +319,7 @@ extern "C" void exception26_handler(uint64_t exceptionAddr)
 extern "C" void exception27_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -301,6 +330,7 @@ extern "C" void exception27_handler(uint64_t exceptionAddr)
 extern "C" void exception28_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -311,6 +341,7 @@ extern "C" void exception28_handler(uint64_t exceptionAddr)
 extern "C" void exception29_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -321,6 +352,7 @@ extern "C" void exception29_handler(uint64_t exceptionAddr)
 extern "C" void exception30_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);
@@ -331,6 +363,7 @@ extern "C" void exception30_handler(uint64_t exceptionAddr)
 extern "C" void exception31_handler(uint64_t exceptionAddr)
 {
     END_OF_INTERRUPT();
+    write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
     vga.Clear();
     vga.Write(__FUNCTION__);

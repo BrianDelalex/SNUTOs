@@ -28,4 +28,4 @@ extern irq14_handler
 extern irq15_handler
 
 
-%endif //!IRQ_HANDLERS_INC
+%endif ;//!IRQ_HANDLERS_INC
