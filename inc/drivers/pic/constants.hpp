@@ -31,6 +31,8 @@
 
 # define PIC_EOI		0x20		/* End-of-interrupt command code */
 
+# define PS2_DATA_PORT  0x60
+
 # define END_OF_INTERRUPT() outb(PIC_EOI, PIC_MASTER_COMMAND)
 
 #endif //!PIC_CONSTANTS_HPP

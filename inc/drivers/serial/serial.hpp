@@ -19,4 +19,6 @@
 # define IOPORT_COM7 0x5E8
 # define IOPORT_COM8 0x4E8
 
+void write_serial(const char *str);
+
 #endif //!SERIAL_HPP

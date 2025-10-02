@@ -10,7 +10,7 @@
 #ifndef PIC_HPP
 #define PIC_HPP
 
-# include <cstdint>
+# include <stdint.h>
 
 # include <drivers/pic/constants.hpp>
 

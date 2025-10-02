@@ -11,6 +11,7 @@
 
 # include <sys/io.h>
 
+
 extern "C" int init_serial()
 {
     outb(0x00, IOPORT_COM1 + 1);    // Disable all interrupts
@@ -30,6 +31,7 @@ extern "C" int init_serial()
     // If serial is not faulty set it in normal operation mode
     // (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
     outb(0x0F, IOPORT_COM1 + 4);
+    write_serial("Serial sets.\n");
     return 0;
 }
 

@@ -10,7 +10,7 @@
 #ifndef TO_STRING_HPP
 #define TO_STRING_HPP
 
-# include <cstdint>
+# include <stdint.h>
 
 char *to_string(uint64_t nb, char *str, uint32_t max_char_size, uint32_t base);
 char *to_string(uint32_t nb, char *str, uint32_t max_char_size, uint32_t base);

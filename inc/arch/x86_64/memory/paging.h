@@ -10,11 +10,7 @@
 #ifndef PAGING_HPP
 #define PAGING_HPP
 
-# ifdef BOOT
 # include <stdint.h>
-#else
-# include <cstdint>
-#endif//!BOOT
 
 struct pml4_s {
     uint64_t entries[512];

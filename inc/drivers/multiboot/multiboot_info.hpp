@@ -10,7 +10,7 @@
 #ifndef MULTIBOOT_INFO
 #define MULTIBOOT_INFO
 
-# include <cstdint>
+# include <stdint.h>
 
 # define MULTIBOOT_INFO_ALIGN                    0x00000008
 

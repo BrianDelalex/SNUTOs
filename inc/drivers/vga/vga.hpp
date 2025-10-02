@@ -10,7 +10,7 @@
 #ifndef VGA_DRIVER_HPP
 #define VGA_DRIVER_HPP
 
-# include <cstdint>
+# include <stdint.h>
 
 # define VGA_WIDTH 80
 # define VGA_HEIGHT 25

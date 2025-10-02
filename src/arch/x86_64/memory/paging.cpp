@@ -17,12 +17,4 @@ extern VGA vga;
 
 void test_pml4()
 {
-    struct pml4_s* pml4 = (struct pml4_s*)PML4;
-    struct pt_s* pt = (struct pt_s*)PT;
-    vga.Clear();
-
-    vga.Write("Phys. page at addr: ");
-    vga.WriteAddress(pt[511].entries[511].entry);
-    vga.Write("\n");
-
 }

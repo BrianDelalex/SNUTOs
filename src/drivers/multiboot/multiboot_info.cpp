@@ -10,10 +10,9 @@
 # include <drivers/multiboot/multiboot_info.hpp>
 # include <drivers/vga/vga.hpp>
 
-
-extern VGA vga;
 extern multiboot_info *mb_info;
 multiboot_info_tags mb_info_tags;
+extern VGA vga;
 
 uintptr_t align(uintptr_t size, uint32_t bytes)
 {

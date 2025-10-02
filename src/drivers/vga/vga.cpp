@@ -12,10 +12,15 @@
 
 VGA vga;
 
+
+int strlen(const char *str);
+
 int strlen(const char *str)
 {
     int i = 0;
-    while (str[i]);
+    while (str[i]) {
+        i++;
+    }
     return i;
 }
 
