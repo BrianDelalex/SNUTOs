@@ -7,14 +7,16 @@
 ;**
 ;********************************************************************
 
-global start
+%include "arch/x86_64/boot/boot.inc"
+
+bits 32
+global _start
 
 extern enabling_long_mode
 
-section .text
-bits 32
-start:
-    mov esp, stack_top
+section .boot.text
+_start:
+    mov esp, VIRT2PHYS(stack_top)
     push eax
     push ebx
     call check_multiboot2_magic_number
@@ -82,6 +84,7 @@ print_error:
     mov byte  [0xb800a], al
     hlt
 
+global stack_top
 section .bss
 align 4096
 stack_bottom:
