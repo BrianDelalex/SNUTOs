@@ -13,4 +13,7 @@
 %define KERNEL_VIRT_START         0xFFFFFFFF80000000
 %define VIRT2PHYS(x) (x - KERNEL_VIRT_START)
 
+%define PAGE_SIZE 0x1000
+%define PAGE_TABLE_SIZE 0x1000
+
 %endif ;//!BOOT_INC

@@ -76,6 +76,57 @@ set_up_page_tables:
     mov [VIRT2PHYS(PDP)], eax
     mov [VIRT2PHYS(PDP) + 8 * 510], eax
 
+    mov ebx, 0      ; PT Table index
+.map_pt:
+    ; Calculating PT Table[ebx] address
+    mov eax, PAGE_TABLE_SIZE
+    mul ebx
+    add eax, VIRT2PHYS(PT)
+    or eax, 0b11; present + writeable
+    mov DWORD [esp - 4], eax
+
+    ; Calculating PD entry[ebx] address offset
+    mov eax, 8
+    mul ebx
+
+    mov esi, DWORD [esp - 4]
+
+    mov[VIRT2PHYS(PD) + eax], esi
+    ;map each PT entry to a 4KiB page
+    mov ecx, 0 ; PT index counter
+.map_pages:
+    ; Calculating page address offset based on PT index
+    mov eax, PAGE_SIZE
+    mul ecx
+    mov DWORD [esp - 4], eax
+
+    ; Calculating Base page address based on PT table index
+    mov eax, 0x200000
+    mul ebx
+    add DWORD [esp - 4], eax
+    or DWORD [esp - 4], 0b11
+
+    ; Calculating PT address offset
+    mov eax, PAGE_SIZE
+    mul ebx
+    mov DWORD [esp - 8], eax
+    mov eax, 8
+    mul ecx
+    add DWORD [esp - 8], eax
+    mov edi, DWORD [esp - 8]
+
+    mov eax, DWORD [esp - 4]
+    mov [VIRT2PHYS(PT) + edi], eax
+
+    inc ecx
+    cmp ecx, 512
+    jne .map_pages
+    inc ebx
+    cmp ebx, 2
+    jne .map_pt
+
+    ret
+
     ; map each PD entry to a huge 2MiB page
     mov ecx, 0         ; counter variable
 .map_pd_table:
@@ -96,15 +147,15 @@ global PML4
 global PDP
 global PD
 global PT
-align 4096
+align PAGE_SIZE
 PML4:
-    resb 4096
+    resb PAGE_SIZE
 PDP:
-    resb 4096
+    resb PAGE_SIZE
 PD:
-    resb 4096
+    resb PAGE_SIZE
 PT:
-    resb 2097152
+    resb PAGE_SIZE * 2
 
 global gdt64
 global gdt64.pointer
