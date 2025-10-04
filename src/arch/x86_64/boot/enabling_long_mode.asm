@@ -122,7 +122,7 @@ set_up_page_tables:
     cmp ecx, 512
     jne .map_pages
     inc ebx
-    cmp ebx, 2
+    cmp ebx, PAGE_TABLE_NBR
     jne .map_pt
 
     ret
@@ -149,13 +149,13 @@ global PD
 global PT
 align PAGE_SIZE
 PML4:
-    resb PAGE_SIZE
+    resb PAGE_TABLE_SIZE
 PDP:
-    resb PAGE_SIZE
+    resb PAGE_TABLE_SIZE
 PD:
-    resb PAGE_SIZE
+    resb PAGE_TABLE_SIZE
 PT:
-    resb PAGE_SIZE * 2
+    resb PAGE_TABLE_NBR * PAGE_TABLE_SIZE
 
 global gdt64
 global gdt64.pointer
