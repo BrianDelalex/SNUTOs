@@ -55,5 +55,5 @@ SECTIONS
 		*(.bss)
 	}
 
-    PROVIDE(KERNEL_END = .);
+    PROVIDE(KERNEL_VIRT_END = .);
 }

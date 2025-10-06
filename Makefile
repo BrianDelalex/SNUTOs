@@ -11,6 +11,7 @@ cpp_source_path :=	src/						\
 					src/drivers/serial			\
 					src/lib/					\
 					src/lib/convert				\
+					src/lib/io					\
 					src/arch/$(arch)/interrupts	\
 					src/arch/$(arch)/memory		\
 

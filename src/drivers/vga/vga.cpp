@@ -24,17 +24,8 @@ int strlen(const char *str)
     return i;
 }
 
-extern "C" void vga_driver_initialize()
+VGA::VGA() : io::ostream()
 {
-    const char *welcomeMsg = "Welcome to SNUTOs";
-    vga.Clear();
-    vga.SetPosition(VGA_WIDTH / 2 - strlen(welcomeMsg) / 2, VGA_HEIGHT / 2);
-    vga.Write(welcomeMsg);
-}
-
-extern "C" void vga_driver_clear()
-{
-    vga.Clear();
 }
 
 void VGA::Clear()
@@ -73,47 +64,6 @@ void VGA::Write(const char *str)
             IncrementPosition();
         }
     }
-}
-
-void VGA::Write(uint32_t nb)
-{
-    int max_char_size = 10;
-    char str[max_char_size + 1];
-    char *str2 = to_string(nb, str, max_char_size, 10);
-    Write(str2);
-}
-
-void VGA::Write(int32_t nb)
-{
-    int max_char_size = 11;
-    char str[max_char_size + 1];
-    char *str2 = to_string(nb, str, max_char_size, 10);
-    Write(str2);
-}
-
-void VGA::Write(uint64_t nb)
-{
-    int max_char_size = 20;
-    char str[max_char_size + 1];
-    char *str2 = to_string(nb, str, max_char_size, 10);
-    Write(str2);
-}
-
-
-void VGA::WriteAddress(uint64_t ptr)
-{
-    Write("0x");
-    char str[17];
-    char *str2 = to_hex_string(ptr, str);
-    Write(str2);
-}
-
-void VGA::WriteAddress(uint32_t ptr)
-{
-    Write("0x");
-    char str[9];
-    char *str2 = to_hex_string(ptr, str);
-    Write(str2);
 }
 
 void VGA::SetPosition(uint8_t x, uint8_t y)

@@ -12,6 +12,8 @@
 
 # include <stdint.h>
 
+# include <io/ostream.hpp>
+
 # define VGA_WIDTH 80
 # define VGA_HEIGHT 25
 # define VGA_MEMORY_START 0xb8000
@@ -44,29 +46,23 @@ struct pos8_s {
 
 typedef struct pos8_s pos8_t;
 
-class VGA {
+
+class VGA : public io::ostream {
     uint8_t m_bg = VGA_COLOR_BLACK;
     uint8_t m_fg = VGA_COLOR_WHITE;
     pos8_t m_pos = {0, 0};
 public:
-    VGA(void) {};
+    VGA();
     void Clear(void);
     void WriteChar(const char c);
-    void Write(const char *str);
-    void Write(uint32_t nb);
-    void Write(int32_t nb);
-    void Write(uint64_t nb);
-    void WriteAddress(uint64_t ptr);
-    void WriteAddress(uint32_t ptr);
+
     void SetPosition(uint8_t x, uint8_t y);
     void SetColor(uint8_t bg, uint8_t fg);
 private:
+    void Write(const char *str) override;
     void WriteToBuffer(uint16_t ch);
     void IncrementPosition(void);
     void NewLinePosition(void);
 };
-
-extern "C" void vga_driver_initialize(void);
-extern "C" void vga_driver_clear(void);
 
 #endif //!VGA_DRIVER_HPP
