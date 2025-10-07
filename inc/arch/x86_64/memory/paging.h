@@ -12,53 +12,56 @@
 
 # include <stdint.h>
 
-struct pml4_s {
-    uint64_t entries[512];
-};
-
-static_assert(sizeof(struct pml4_s) == 4096, "struct pml4_s invalid size");
-
-struct pdp_s {
-    uint64_t entries[512];
-};
-
-static_assert(sizeof(struct pdp_s) == 4096, "struct pdp_s invalid size");
-
-struct pd_s {
-    uint64_t entries[512];
-};
-
-static_assert(sizeof(struct pd_s) == 4096, "struct pd_s invalid size");
-struct __attribute__((__packed__)) pt_entry_s {
+struct __attribute__((__packed__)) paging_table_entry_s {
         uint8_t p : 1;
         uint8_t r_w : 1;
         uint8_t u_s : 1;
         uint8_t pwt : 1;
         uint8_t pcd : 1;
         uint8_t a : 1;
-        uint8_t d : 1;
-        uint8_t pat : 1;
-        uint8_t g : 1;
-        uint8_t avl_1 : 3;
-        uint64_t addr : 37;
-        uint8_t reserved : 4;
-        uint8_t avl_2 : 6;
-        uint8_t pk : 4;
+        uint8_t avl_1 : 1;
+        uint8_t page_size : 1;
+        uint8_t avl_2 : 4;
+        uint64_t addr : 40;
+        uint16_t avl_3 : 11;
         uint8_t xd : 1;
 };
 
-union pt_entry_u {
-    uint64_t entry;
-    struct pt_entry_s bits;
+union paging_table_entry_u {
+    uint64_t addr;
+    struct paging_table_entry_s bits;
+};
+static_assert(sizeof(struct paging_table_entry_s) == 8, "struct paging_table_entry_s invalid size");
+
+static_assert(sizeof(union paging_table_entry_u) == 8, "union paging_table_entry_u invalid size");
+
+typedef union paging_table_entry_u pml4_entry;
+struct pml4_s {
+    pml4_entry entries[512];
 };
 
+
+static_assert(sizeof(struct pml4_s) == 4096, "struct pml4_s invalid size");
+
+typedef union paging_table_entry_u pdp_entry;
+struct pdp_s {
+    pdp_entry entries[512];
+};
+
+
+static_assert(sizeof(struct pdp_s) == 4096, "struct pdp_s invalid size");
+
+typedef union paging_table_entry_u pd_entry;
+struct pd_s {
+    pd_entry entries[512];
+};
+
+static_assert(sizeof(struct pd_s) == 4096, "struct pd_s invalid size");
+
+typedef union paging_table_entry_u pt_entry;
 struct pt_s {
-    union pt_entry_u entries[512];
+    pt_entry entries[512];
 };
-
-static_assert(sizeof(struct pt_entry_s) == 8, "struct pt_entry_s invalid size");
-
-static_assert(sizeof(union pt_entry_u) == 8, "union pt_entry_u invalid size");
 
 static_assert(sizeof(struct pt_s) == 4096, "struct pt_s invalid size");
 
