@@ -13,8 +13,9 @@ char *to_string(uint64_t nb, char *str, uint32_t max_char_size, uint32_t base)
 {
     int i = max_char_size - 1;
     if (nb == 0) {
-        str[i] = '0';
-        return (&(str[i]));
+        str[i] = 0;
+        str[i - 1] = '0';
+        return (&(str[i - 1]));
     }
     for (; i >= 0 && nb > 0; i--) {
         str[i] = ((char)(nb % base) + 48);
@@ -29,8 +30,9 @@ char *to_string(uint32_t nb, char *str, uint32_t max_char_size, uint32_t base)
 {
     int i = max_char_size - 1;
     if (nb == 0) {
-        str[i] = '0';
-        return (&(str[i]));
+        str[i] = 0;
+        str[i - 1] = '0';
+        return (&(str[i - 1]));
     }
     for (; i >= 0 && nb > 0; i--) {
         str[i] = ((char)(nb % base) + 48);
@@ -47,8 +49,9 @@ char *to_string(int32_t nb, char *str, uint32_t max_char_size, uint32_t base)
     int i = max_char_size - 1;
     bool neg = nb < 0;
     if (nb == 0) {
-        str[i] = '0';
-        return (&(str[i]));
+        str[i] = 0;
+        str[i - 1] = '0';
+        return (&(str[i - 1]));
     }
     if (neg)
         nb = nb * -1;
