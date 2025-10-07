@@ -18,10 +18,10 @@ section .boot.text
 enabling_long_mode:
     push edi
     push esi
+
     call set_up_page_tables
 
     call enable_paging
-
 
     mov eax, gdt64_phys_ptr
     lgdt [eax]
@@ -104,7 +104,8 @@ set_up_page_tables:
     mov eax, 0x200000
     mul ebx
     add DWORD [esp - 4], eax
-    or DWORD [esp - 4], 0b11
+
+    or DWORD [esp - 4], 0b11 ; present + writable
 
     ; Calculating PT address offset
     mov eax, PAGE_SIZE
@@ -121,24 +122,10 @@ set_up_page_tables:
     inc ecx
     cmp ecx, 512
     jne .map_pages
+
     inc ebx
     cmp ebx, PAGE_TABLE_NBR
     jne .map_pt
-
-    ret
-
-    ; map each PD entry to a huge 2MiB page
-    mov ecx, 0         ; counter variable
-.map_pd_table:
-    ; map ecx-th P2 entry to a huge page that starts at address 2MiB*ecx
-    mov eax, 0x200000  ; 2MiB
-    mul ecx            ; start address of ecx-th page
-    or eax, 0b10000011 ; present + writable + huge
-    mov [VIRT2PHYS(PD) + ecx * 8], eax ; map ecx-th entry
-
-    inc ecx            ; increase counter
-    cmp ecx, 512       ; if counter == 512, the whole P2 table is mapped
-    jne .map_pd_table  ; else map the next entry
 
     ret
 

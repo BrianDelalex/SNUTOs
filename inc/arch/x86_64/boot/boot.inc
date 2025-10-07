@@ -15,6 +15,6 @@
 
 %define PAGE_SIZE 0x1000
 %define PAGE_TABLE_SIZE 0x1000
-%define PAGE_TABLE_NBR 512
+%define PAGE_TABLE_NBR 20
 
 %endif ;//!BOOT_INC
