@@ -9,16 +9,11 @@
 
 # include <drivers/multiboot/multiboot_info.hpp>
 # include <drivers/vga/vga.hpp>
+# include <bitwise_op.hpp>
 
 extern multiboot_info *mb_info;
 multiboot_info_tags mb_info_tags;
 extern VGA vga;
-
-uintptr_t align(uintptr_t size, uint32_t bytes)
-{
-    uint32_t n = bytes - 1;
-    return ((size + n) & ~n);
-}
 
 void show_memory_map_infos()
 {
