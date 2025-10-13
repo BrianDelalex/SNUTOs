@@ -14,9 +14,10 @@
 
 # include <io/ostream.hpp>
 
+# include <arch/x86_64/memory/constants.hpp>
+
 # define VGA_WIDTH 80
 # define VGA_HEIGHT 25
-# define VGA_MEMORY_START 0xb8000
 # define VGA_MEMORY_END VGA_MEMORY_START + (VGA_WIDTH * VGA_HEIGHT * sizeof(uint16_t))
 
 /* Hardware text mode color constants. */
