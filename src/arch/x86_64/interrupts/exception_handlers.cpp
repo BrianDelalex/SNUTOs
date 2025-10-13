@@ -159,13 +159,14 @@ extern "C" void exception13_handler(uint64_t exceptionAddr)
     asm volatile("cli; hlt");
 }
 
-extern "C" void exception14_handler(uint64_t exceptionAddr)
+extern "C" void exception14_handler(uint64_t exceptionAddr, uint64_t errorCode)
 {
     END_OF_INTERRUPT();
     write_serial("exception_handler\n");
     SET_VGA_PANIC_COLOR();
-    vga.Clear();
+    //vga.Clear();
     vga << __FUNCTION__ << HEX << exceptionAddr << "\n";
+    vga << "ErrorCode: " << HEX << errorCode << "\n";
     asm volatile("cli; hlt");
 }
 

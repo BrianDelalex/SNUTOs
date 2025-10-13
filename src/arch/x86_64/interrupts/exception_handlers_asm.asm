@@ -153,6 +153,7 @@ exception13:
 
 exception14:
     mov rdi, [rsp + 8]
+    mov rsi, [rsp]
     pushaq
     call exception14_handler
     popaq
