@@ -12,9 +12,13 @@
 # include <arch/x86_64/memory/constants.hpp>
 # include <arch/x86_64/memory/paging.h>
 
+# include <kernel/assert.hpp>
+
 # include <drivers/serial/SerialStream.hpp>
 
 # include <bitwise_op.hpp>
+
+extern "C" void tlb_flush(void);
 
 extern char KERNEL_VIRT_END[];
 extern char KERNEL_VIRT_START[];
@@ -33,55 +37,58 @@ inline bool is_page_aligned(virtaddr_t virtaddr)
 /*
  * Unmapped memory after KERNEL_VIRT_END.
  */
-static void unmap_vmem_kernel()
+static void unmap_vmem_kernel_bootstrap()
 {
+    SerialStream serial;
     virtaddr_t virtaddr;
     virtaddr.addr = align((uintptr_t)KERNEL_VIRT_END, PAGE_SIZE);
     g_early_virtaddr_spc.start = virtaddr.addr;
+    uint32_t unmappedBytes = 0;
 
     while (virtaddr.addr < (uint64_t)BOOTSTRAP_MAPPING_END) {
         unmap_vmem(virtaddr, UNMAP_NOFREE);
+        unmappedBytes += 4096;
         virtaddr.addr = virtaddr.addr + PAGE_SIZE;
     }
+    serial << "unmappedBytes " << unmappedBytes << "\n";
     g_early_virtaddr_spc.end = virtaddr.addr - PAGE_SIZE;
 }
 
 static pml4_entry* get_pml4_entry(virtaddr_t virtaddr)
 {
-    return &(((struct pml4_s*) PML4)->entries[virt2pml4Idx(virtaddr)]);
+    return &(((struct pml4_s*) PML4)->entries[virt2pml4Idx(virtaddr.addr)]);
 }
 
-static pdp_entry* get_pdp_entry(virtaddr_t virtaddr, pml4_entry *pml4_entry = nullptr)
+static pdp_entry* get_pdp_entry(virtaddr_t virtaddr, pml4_entry *pml4e = nullptr)
 {
-    if (!pml4_entry)
-        pml4_entry = get_pml4_entry(virtaddr);
-    struct pdp_s* pdp = (struct pdp_s*)(pml4_entry->addr & ~0xFFF);
+    if (!pml4e)
+        pml4e = get_pml4_entry(virtaddr);
+    struct pdp_s* pdp = (struct pdp_s*)(pml4e->addr & ~0xFFF);
 
-    return &pdp->entries[virt2pdpIdx(virtaddr)];
+    return &pdp->entries[virt2pdpIdx(virtaddr.addr)];
 }
 
-static pd_entry* get_pd_entry(virtaddr_t virtaddr, pdp_entry* pdp_entry = nullptr)
+static pd_entry* get_pd_entry(virtaddr_t virtaddr, pdp_entry* pdpe = nullptr)
 {
-    if (!pdp_entry)
-        pdp_entry = get_pdp_entry(virtaddr);
-    struct pd_s* pd = (struct pd_s*)(pdp_entry->addr & ~0xFFF);
+    if (!pdpe)
+        pdpe = get_pdp_entry(virtaddr);
+    struct pd_s* pd = (struct pd_s*)(pdpe->addr & ~0xFFF);
 
-    return &pd->entries[virt2pdIdx(virtaddr)];
+    return &pd->entries[virt2pdIdx(virtaddr.addr)];
 }
 
-static pt_entry* get_pt_entry(virtaddr_t virtaddr, pd_entry* pd_entry = nullptr)
+static pt_entry* get_pt_entry(virtaddr_t virtaddr, pd_entry* pde = nullptr)
 {
-    if (!pd_entry)
-        pd_entry = get_pd_entry(virtaddr);
-    struct pt_s* pt = (struct pt_s*)(pd_entry->addr & ~0xFFF);
+    if (!pde)
+        pde = get_pd_entry(virtaddr);
+    struct pt_s* pt = (struct pt_s*)(pde->addr & ~0xFFF);
 
-    return &pt->entries[virt2ptIdx(virtaddr)];
+    return &pt->entries[virt2ptIdx(virtaddr.addr)];
 }
 
 void unmap_vmem(virtaddr_t virtaddr, unmap_flags flags)
 {
-    if (!is_page_aligned(virtaddr))
-        return;
+    assert_msg(is_page_aligned(virtaddr), "unmap_vmem: virtaddr not aligned.");
 
     pml4_entry* pml4;
     pdp_entry* pdp;
@@ -110,7 +117,71 @@ void unmap_vmem(virtaddr_t virtaddr, unmap_flags flags)
     pt->addr = 0x0;
 }
 
+/*
+ *  Remap a page within virtual address space [KERNEL_VIRT_END, BOOTSTRAP_MAPPING_END].
+ *  The return address is a virtual address egal to physical address + KERNEL_VIRT_START.
+ *  Mainly use in early stage to allocate page-translation-tables (eg. Page Directory or Page Table).
+ */
+void *map_bootstrap_page()
+{
+    assert_msg((g_early_virtaddr_spc.start < g_early_virtaddr_spc.end), "map_bootstrap_page: OUT OF BOOTSTRAP MEM.");
+
+    virtaddr_t virtaddr = {.addr = g_early_virtaddr_spc.start};
+    g_early_virtaddr_spc.start = virtaddr.addr + PAGE_SIZE;
+
+    pml4_entry* pml4e = get_pml4_entry(virtaddr);
+    if (!pml4e->bits.p)
+        pml4e->bits.p = 0b1;
+    pdp_entry* pdpe = get_pdp_entry(virtaddr, pml4e);
+    if (!pdpe->bits.p)
+        pdpe->bits.p = 0b1;
+    pd_entry* pde = get_pd_entry(virtaddr, pdpe);
+    if (!pde->bits.p)
+        pdpe->bits.p = 0b1;
+    pt_entry* pte = get_pt_entry(virtaddr, pde);
+    pte->addr = virtaddr.addr - (uint64_t)KERNEL_VIRT_START;
+    pte->bits.p = 0b1;
+    pte->bits.r_w = 0b1;
+    return (void*)virtaddr.addr;
+}
+
+bool is_address_mapped(void *addr)
+{
+    SerialStream stream;
+    virtaddr_t virtaddr;
+    virtaddr.addr = (uintptr_t)addr;
+
+    stream << "Checking virtaddr " << HEX << (uintptr_t)addr << "\n";
+    pml4_entry* pml4e = get_pml4_entry(virtaddr);
+    stream << "PML4[" << virt2pml4Idx(virtaddr.addr) << "]:" << HEX << pml4e->addr << "\n";
+    if (!pml4e->bits.p)
+        return false;
+    pdp_entry* pdpe = get_pdp_entry(virtaddr, pml4e);
+    stream << "PDP[" << virt2pdpIdx(virtaddr.addr) << "]:" << HEX << pdpe->addr << "\n";
+    if (!pdpe->bits.p)
+        return false;
+    pd_entry* pde = get_pd_entry(virtaddr, pdpe);
+    stream << "PD[" << virt2pdIdx(virtaddr.addr) << "]:" << HEX << pde->addr << "\n";
+    if (!pde->bits.p)
+        return false;
+    pt_entry* pte = get_pt_entry(virtaddr, pde);
+    stream << "PT[" << virt2ptIdx(virtaddr.addr) << "]:" << HEX << pte->addr << "\n";
+    if (!pte->bits.p)
+        return false;
+    return true;
+}
+
+
+void kheap_init();
+
+
 void init_virtual_memory_manager()
 {
-    unmap_vmem_kernel();
+    unmap_vmem_kernel_bootstrap();
+
+    kheap_init();
+
+    // Removing identity mapping
+    struct pml4_s* pml4 = (struct pml4_s*) PML4;
+    pml4->entries[0].bits.p = 0;
 }
