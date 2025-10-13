@@ -9,8 +9,11 @@
 
 bits 64
 
+%include "arch/x86_64/boot/boot.inc"
+
 global starting_long_mode
 global load_idt
+global tlb_flush
 
 extern _init
 extern kmain
@@ -66,6 +69,11 @@ load_idt:
     cli
     lidt [IDT_DESC]
     sti
+    ret
+
+tlb_flush:
+    mov rax, cr3
+    mov cr3, rax
     ret
 
 print_init_failed:
