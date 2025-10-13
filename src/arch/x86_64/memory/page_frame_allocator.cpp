@@ -11,6 +11,8 @@
 
 # include "drivers/serial/serial.hpp"
 
+# include <kernel/core/panic.hpp>
+
 extern char KERNEL_VIRT_START[];
 extern char KERNEL_VIRT_END[];
 const int kernel_frame_map_size = 512 * 512;
@@ -18,7 +20,7 @@ page_frame_t kframe_map[kernel_frame_map_size];
 
 void init_kernel_frame_map()
 {
-    const uint64_t kernel_phys_end = KERNEL_VIRT_END - KERNEL_VIRT_START;
+    const uint64_t kernel_phys_end = BOOTSTRAP_MAPPING_END - (uint64_t)KERNEL_VIRT_START;
     for (int i = 0; i < kernel_frame_map_size; i++) {
         kframe_map[i].address = i * PAGE_SIZE;
         kframe_map[i].used = kframe_map[i].address < kernel_phys_end ? true : false;
@@ -42,6 +44,7 @@ void *kalloc_page_frame()
             return (void*)kframe_map[i].address;
         }
     }
+    panic("kalloc_page_frame: out of page frame.");
     return NULL;
 }
 
