@@ -64,6 +64,7 @@ public:
 
     void ShowBlocks(io::ostream &os);
 private:
+    void *AllocBlock(kheap_block_list_t* block, size_t size);
     kheap_block_list_t* GetNode(void);
     void ReleaseNode(kheap_block_list_t* node);
 };

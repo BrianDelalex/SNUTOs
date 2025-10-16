@@ -47,6 +47,7 @@ void KHeap::Init()
 void *KHeap::Alloc(size_t size)
 {
     kheap_block_list_t* blocks = m_blocks;
+    kheap_block_list_t* last_block;
 
     while (blocks) {
         if (blocks->block.allocated) {
@@ -54,29 +55,32 @@ void *KHeap::Alloc(size_t size)
             continue;
         }
         if (blocks->block.size >= size) {
-            if (blocks->block.size == size) {
-                blocks->block.allocated = true;
-                return (void*)blocks->block.addr;
-            }
-            kheap_block_list_t* new_block = GetNode();
-            new_block->block.addr = blocks->block.addr + size;
-            new_block->block.size = blocks->block.size - size;
-            new_block->block.allocated = false;
-            new_block->next = blocks->next;
-
-            blocks->block.allocated = true;
-            blocks->block.size = size;
-            blocks->next = new_block;
-            return (void*)blocks->block.addr;
+            return AllocBlock(blocks, size);
         }
+        last_block = blocks;
+        blocks = blocks->next;
     }
 
-    //TODO: Realloc data mem.
+    uint32_t page_nbr = size / PAGE_SIZE + 1;
+    m_data.MapPages(page_nbr);
+    kheap_block_list_t* new_block = GetNode();
+    new_block->block.addr = last_block->block.addr + last_block->block.size;
+    new_block->block.size = page_nbr * PAGE_SIZE;
+    new_block->block.allocated = false;
+    new_block->next = nullptr;
+    last_block->next = new_block;
+    if (!last_block->block.allocated) {
+        MergeFreeBlocks();
+        return AllocBlock(last_block, size);
+    } else {
+        return AllocBlock(new_block, size);
+    }
 }
 
 void KHeap::Free(void* addr)
 {
-    kheap_block_list_s *blocks = m_blocks;
+    kheap_block_list_t *blocks = m_blocks;
+    bool last_block_allocated = true;
 
     while (blocks) {
         if (blocks->block.addr == (uintptr_t)addr) {
@@ -85,9 +89,11 @@ void KHeap::Free(void* addr)
                 return;
             }
             blocks->block.allocated = false;
-            MergeFreeBlocks();
+            if (!last_block_allocated)
+                MergeFreeBlocks();
             return;
         }
+        last_block_allocated = blocks->block.allocated;
         blocks = blocks->next;
     }
     panic("KHeap::Free: Double free/Free unallocated value.");
@@ -95,9 +101,11 @@ void KHeap::Free(void* addr)
 
 void KHeap::MergeFreeBlocks()
 {
+    SerialStream serial;
+    serial << __FUNCTION__ << "\n";
     kheap_block_list_t* blocks = m_blocks;
 
-    while (blocks->next) {
+    while (blocks && blocks->next) {
         if (!blocks->block.allocated && !blocks->next->block.allocated) {
             kheap_block_list_t* next = blocks->next;
             blocks->block.size += next->block.size;
@@ -118,6 +126,26 @@ void KHeap::ShowBlocks(io::ostream &os)
         ptr = ptr->next;
     }
     os << "\n";
+}
+
+void *KHeap::AllocBlock(kheap_block_list_t* block, size_t size)
+{
+    if (block->block.size == size) {
+        block->block.allocated = true;
+        return (void*)block->block.addr;
+    }
+
+    // If block.size > size split block to allocate only requested size.
+    kheap_block_list_t* new_block = GetNode();
+    new_block->block.addr = block->block.addr + size;
+    new_block->block.size = block->block.size - size;
+    new_block->block.allocated = false;
+    new_block->next = block->next;
+
+    block->block.allocated = true;
+    block->block.size = size;
+    block->next = new_block;
+    return (void*)block->block.addr;
 }
 
 kheap_block_list_t* KHeap::GetNode(void)
@@ -187,10 +215,8 @@ void KHeapData::MapPages(uint32_t page_nbr)
     int pt_index = m_mapped_pages % 512;
     uint32_t page_count = 0;
 
-    SerialStream serial;
     for (; pd_index < 512; pd_index++) {
         struct pt_s*pt = (struct pt_s*)((m_pd->entries[pd_index].addr & ~0xFFF) + (uintptr_t)KERNEL_VIRT_START);
-        serial << HEX << (uintptr_t)pt << "\n";
         for (; pt_index < 512; pt_index++) {
             uintptr_t page = (uintptr_t)kalloc_page_frame();
             pt->entries[pt_index].addr = page;
