@@ -14,6 +14,8 @@ cpp_source_path :=	src/						\
 					src/lib/io					\
 					src/arch/$(arch)/interrupts	\
 					src/arch/$(arch)/memory		\
+					src/kernel/core				\
+					src/kernel/memory			\
 
 assembly_source_path :=	src/arch/$(arch)/boot		\
 						src/arch/$(arch)/interrupts	\
