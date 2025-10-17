@@ -23,7 +23,8 @@ void init_kernel_frame_map()
     const uint64_t kernel_phys_end = BOOTSTRAP_MAPPING_END - (uint64_t)KERNEL_VIRT_START;
     for (int i = 0; i < kernel_frame_map_size; i++) {
         kframe_map[i].address = i * PAGE_SIZE;
-        kframe_map[i].used = kframe_map[i].address < kernel_phys_end ? true : false;
+        if (kframe_map[i].address < kernel_phys_end)
+            kframe_map[i].address = SET_USED_BIT(kframe_map[i].address);
     }
 }
 
@@ -33,15 +34,15 @@ bool is_page_used(void *page_frame)
         write_serial("[ERROR] kfree_page_frame: address is not page alligned.\n");
         return false;
     }
-    return kframe_map[(uint64_t)page_frame / PAGE_SIZE].used;
+    return CHECK_USED_BIT(kframe_map[(uint64_t)page_frame / PAGE_SIZE].address);
 }
 
 void *kalloc_page_frame()
 {
     for (int i = 0; i < kernel_frame_map_size; i++) {
-        if (!kframe_map[i].used) {
-            kframe_map[i].used = true;
-            return (void*)kframe_map[i].address;
+        if (!(kframe_map[i].address & 0b1)) {
+            kframe_map[i].address = SET_USED_BIT(kframe_map[i].address);
+            return (void*)(CLEAR_USED_BIT(kframe_map[i].address));
         }
     }
     panic("kalloc_page_frame: out of page frame.");
@@ -55,9 +56,9 @@ void kfree_page_frame(void* page_frame)
         return;
     }
     unsigned int index = (uint64_t)page_frame / PAGE_SIZE;
-    if (!kframe_map[index].used) {
+    if (!(CHECK_USED_BIT(kframe_map[index].address))) {
         write_serial("[ERROR] kfree_page_frame: double free/freeing unallocated page.\n");
         return;
     }
-    kframe_map[index].used = false;
+    kframe_map[index].address = CLEAR_USED_BIT(kframe_map[index].address);
 }

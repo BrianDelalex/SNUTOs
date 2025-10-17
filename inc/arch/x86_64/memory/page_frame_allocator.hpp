@@ -14,9 +14,15 @@
 
 # include <arch/x86_64/memory/constants.hpp>
 
+# define SET_USED_BIT(x) x | 0b1
+# define CLEAR_USED_BIT(x) x & ~0b1
+# define CHECK_USED_BIT(x) x & 0b1
+
+/*
+ * Represent the address of a page frame. When bit 0 of the address is set that mean the page is allocated.
+ */
 typedef struct page_frame_s {
     uint64_t address;
-    bool used;
 }page_frame_t;
 
 void init_kernel_frame_map(void);
