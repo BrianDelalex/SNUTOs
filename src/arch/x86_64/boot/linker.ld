@@ -55,5 +55,6 @@ SECTIONS
 		*(.bss)
 	}
 
+    . = ALIGN(0x1000);
     PROVIDE(KERNEL_VIRT_END = .);
 }
