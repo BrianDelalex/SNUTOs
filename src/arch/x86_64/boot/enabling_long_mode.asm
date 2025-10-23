@@ -54,9 +54,10 @@ enable_paging:
     or eax, 1 << 8
     wrmsr
 
-    ; enable paging in the cr0 register
+    ; enable paging and WP in the cr0 register
     mov eax, cr0
     or eax, 1 << 31
+    or eax, 1 << 16
     mov cr0, eax
 
 
