@@ -62,12 +62,13 @@ extern "C" void kmain(__attribute__((unused)) uint32_t mb_magic, uint32_t mb_add
     vga.Clear();
     vga << bootSequenceDone << welcomeMsg;
     serial << bootSequenceDone << welcomeMsg;
-    mb_info = (multiboot_info *)((uintptr_t)mb_addr);
+    mb_info = (multiboot_info *)((uintptr_t)mb_addr + KERNEL_VIRT_START);
     vga << "Kernel virtual start: " << HEX << (uint64_t) KERNEL_VIRT_START << "\n";
 
     vga << "Kernel virtual end: " << HEX << ((uint64_t)KERNEL_VIRT_END) << "\n";
 
     vga << "Kernel size: " << ((uint64_t)KERNEL_VIRT_END) - ((uint64_t)KERNEL_VIRT_START) << "\n";
+    serial << "Kernel size: " << ((uint64_t)KERNEL_VIRT_END) - ((uint64_t)KERNEL_VIRT_START) << "\n";
 
     init_kernel_frame_map();
 
@@ -75,16 +76,7 @@ extern "C" void kmain(__attribute__((unused)) uint32_t mb_magic, uint32_t mb_add
     init_virtual_memory_manager();
     count_mapped_page();
 
-
-    g_kheap.ShowBlocks(serial);
-    char *ptr = (char*) kmalloc(11);
-    g_kheap.ShowBlocks(serial);
-    char *ptr2 = (char*)kmalloc(512);
-    g_kheap.ShowBlocks(serial);
-    kfree(ptr);
-    g_kheap.ShowBlocks(serial);
-    kfree(ptr2);
-    g_kheap.ShowBlocks(serial);
+    parse_multiboot_infos_tags();
 
     while (1) {
         asm volatile("hlt");
