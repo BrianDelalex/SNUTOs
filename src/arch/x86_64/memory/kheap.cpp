@@ -101,8 +101,6 @@ void KHeap::Free(void* addr)
 
 void KHeap::MergeFreeBlocks()
 {
-    SerialStream serial;
-    serial << __FUNCTION__ << "\n";
     kheap_block_list_t* blocks = m_blocks;
 
     while (blocks && blocks->next) {
@@ -111,6 +109,7 @@ void KHeap::MergeFreeBlocks()
             blocks->block.size += next->block.size;
             blocks->next = next->next;
             ReleaseNode(next);
+            continue;
         }
         blocks = blocks->next;
     }
