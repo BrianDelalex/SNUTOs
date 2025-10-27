@@ -15,17 +15,10 @@
 # include <kernel/assert.hpp>
 # include <drivers/serial/SerialStream.hpp>
 
-KHeap g_kheap;
-
 io::ostream &operator<<(io::ostream &os, kheap_block_list_t *block)
 {
     os << HEX << (uintptr_t) block << " [ addr: " << HEX << block->block.addr << ", size:" << block->block.size << ", used: " << (block->block.allocated ? "true" : "false") << "]\n";
     return os;
-}
-
-void kheap_init()
-{
-    g_kheap.Init();
 }
 
 KHeap::KHeap() {}

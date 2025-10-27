@@ -14,6 +14,8 @@
 
 typedef uint64_t size_t;
 
+void* pvalloc(size_t size);
+void pvfree(void* ptr);
 void* kmalloc(size_t size);
 void kfree(void* addr);
 
