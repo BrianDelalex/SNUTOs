@@ -40,10 +40,6 @@ static uintptr_t clear_addr_ctrl_bits(uintptr_t addr)
     return addr & ~0xFFF;
 }
 
-static uintptr_t virt2phys(uintptr_t virt)
-{
-    return virt - ((uintptr_t)KERNEL_VIRT_START);
-}
 
 static pml4_entry* get_pml4_entry(virtaddr_t virtaddr)
 {
@@ -85,8 +81,9 @@ static pml4_entry* set_pml4_entry(virtaddr_t virtaddr, uintptr_t pml4e)
     return &pml4->entries[virtaddr.bitfield.pml4_offset];
 }
 
-void unmap_vmem(virtaddr_t virtaddr, unmap_flags flags)
+void unmap_vmem(uintptr_t vaddr, unmap_flags flags)
 {
+    virtaddr_t virtaddr = {.addr = vaddr};
     assert_msg(is_page_aligned(virtaddr), "unmap_vmem: virtaddr not aligned.");
 
     pml4_entry* pml4;
@@ -232,9 +229,19 @@ bool is_address_mapped(void *addr)
 }
 
 /*
+ * In bootstrap virtual to physical memory translation is one to one meaning that virtual memory = physical memory.
+ * This function unset the first PML4 entry's present bit to disable this one to one mapping.
+ */
+void unmap_identity_mapping()
+{
+    struct pml4_s* pml4 = (struct pml4_s*) PML4;
+    pml4->entries[0].bits.p = 0;
+}
+
+/*
  * Unmapped memory after KERNEL_VIRT_END.
  */
-static void unmap_vmem_kernel_bootstrap()
+void unmap_vmem_kernel_bootstrap()
 {
     SerialStream serial;
     virtaddr_t virtaddr;
@@ -243,7 +250,7 @@ static void unmap_vmem_kernel_bootstrap()
     uint32_t unmappedBytes = 0;
 
     while (virtaddr.addr < (uintptr_t)BOOTSTRAP_MAPPING_END) {
-        unmap_vmem(virtaddr, UNMAP_NOFREE);
+        unmap_vmem(virtaddr.addr, UNMAP_NOFREE);
         unmappedBytes += 4096;
         virtaddr.addr = virtaddr.addr + PAGE_SIZE;
     }
@@ -279,8 +286,9 @@ void* VirtualMemoryManager::Map(size_t size)
                 (virtaddr_space_list_t*) kmalloc(sizeof(virtaddr_space_list_t));
             new_spc->space.start = ptr->space.start;
             new_spc->space.end = new_spc->space.start + aligned;
+            new_spc->reserved = false;
             ptr->space.start = new_spc->space.end;
-            AppendUsedSpace(new_spc);
+            AppendSpace(m_virt_spaces_used, new_spc);
             for (uintptr_t addr = new_spc->space.start; addr != new_spc->space.end; addr += PAGE_SIZE) {
                 map_vmem(addr);
             }
@@ -288,8 +296,9 @@ void* VirtualMemoryManager::Map(size_t size)
         }
 
         if (align(ptr->space.end - ptr->space.start, PAGE_SIZE) == aligned) {
-            AppendUsedSpace(ptr);
-            RemoveFreeSpace(ptr, false);
+            ptr->reserved = false;
+            AppendSpace(m_virt_spaces_used, ptr);
+            RemoveSpace(m_virt_spaces_free, ptr, false);
             for (uintptr_t addr = ptr->space.start; addr != ptr->space.end; addr = addr + PAGE_SIZE) {
                 map_vmem(addr);
             }
@@ -299,6 +308,28 @@ void* VirtualMemoryManager::Map(size_t size)
     }
     panic("VirtualMemoryManager::Map: Out of Virtual address space");
     return nullptr;
+}
+
+void VirtualMemoryManager::Unmap(void *ptr)
+{
+    virtaddr_space_list_t* list = m_virt_spaces_used;
+
+    while (list) {
+        if (list->space.start == (uintptr_t)ptr) {
+            if (list->reserved) {
+                panic("VirtualMemoryManager::Unmap: trying to unmap reserved address space !");
+                return;
+            }
+            for (uintptr_t addr = list->space.start; addr != list->space.end; addr += PAGE_SIZE) {
+                unmap_vmem(addr, 0);
+            }
+            RemoveSpace(m_virt_spaces_used, list, false);
+            AppendSpace(m_virt_spaces_free, list);
+            return;
+        }
+        list = list->next;
+    }
+    panic("VirtualMemoryManager::Unmap: Unmapping unmapped address.");
 }
 
 void VirtualMemoryManager::ShowState()
@@ -320,22 +351,22 @@ void VirtualMemoryManager::ShowState()
     }
 }
 
-void VirtualMemoryManager::AppendUsedSpace(virtaddr_space_list_t* space)
+void VirtualMemoryManager::AppendSpace(virtaddr_space_list_t* list, virtaddr_space_list_t* space)
 {
-    virtaddr_space_list_t* ptr = m_virt_spaces_used;
+    virtaddr_space_list_t* ptr = list;
     while (ptr->next) {
         ptr = ptr->next;
     }
     ptr->next = space;
 }
 
-void VirtualMemoryManager::RemoveFreeSpace(virtaddr_space_list_t* space, bool free)
+void VirtualMemoryManager::RemoveSpace(virtaddr_space_list_t* list, virtaddr_space_list_t* space, bool free)
 {
-    virtaddr_space_list_t* ptr = m_virt_spaces_free;
+    virtaddr_space_list_t* ptr = list;
     virtaddr_space_list_t* last = ptr;
 
     if (ptr == space) {
-        m_virt_spaces_free = ptr->next;
+        list = ptr->next;
         if (free)
             kfree(ptr);
     }
@@ -349,15 +380,4 @@ void VirtualMemoryManager::RemoveFreeSpace(virtaddr_space_list_t* space, bool fr
         last = ptr;
         ptr = ptr->next;
     }
-}
-
-void kheap_init();
-void init_virtual_memory_manager()
-{
-    unmap_vmem_kernel_bootstrap();
-
-    kheap_init();
-    // Removing identity mapping
-    struct pml4_s* pml4 = (struct pml4_s*) PML4;
-    //pml4->entries[0].bits.p = 0;
 }

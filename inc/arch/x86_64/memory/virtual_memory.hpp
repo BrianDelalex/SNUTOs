@@ -54,6 +54,16 @@ inline uint32_t virt2physIdx(uintptr_t addr)
     return (uint32_t) (addr & 0xFFF);
 }
 
+inline uintptr_t phys2virt(uintptr_t phys)
+{
+    return phys - ((uintptr_t)KERNEL_VIRT_START);
+}
+
+inline uintptr_t virt2phys(uintptr_t virt)
+{
+    return virt - ((uintptr_t)KERNEL_VIRT_START);
+}
+
 typedef struct virtaddr_space_s {
     uintptr_t start;
     uintptr_t end;
@@ -62,6 +72,7 @@ typedef struct virtaddr_space_s {
 typedef struct virtaddr_space_list_s {
     virtaddr_space_t space;
     struct virtaddr_space_list_s* next;
+    bool reserved;
 }virtaddr_space_list_t;
 
 
@@ -71,6 +82,7 @@ static virtaddr_space_list_t g_reserved_bs_mapping_spc = {
         .end = BOOTSTRAP_MAPPING_END,
     },
     .next = nullptr,
+    .reserved = true
 };
 
 static virtaddr_space_list_t g_reserved_kernel_spc = {
@@ -79,6 +91,7 @@ static virtaddr_space_list_t g_reserved_kernel_spc = {
         .end = (uintptr_t)KERNEL_VIRT_END
     },
     .next = &g_reserved_bs_mapping_spc,
+    .reserved = true
 };
 
 static virtaddr_space_list_t g_reserved_kheap_data_virtaddr_spc = {
@@ -87,6 +100,7 @@ static virtaddr_space_list_t g_reserved_kheap_data_virtaddr_spc = {
         .end = KHEAP_DATA_VIRT_END
     },
     .next = &g_reserved_kernel_spc,
+    .reserved = true
 };
 
 class VirtualMemoryManager {
@@ -96,10 +110,11 @@ public:
     VirtualMemoryManager(void);
     void Init(void);
     void *Map(size_t size);
+    void Unmap(void *ptr);
     void ShowState(void);
 private:
-    void AppendUsedSpace(virtaddr_space_list_t* space);
-    void RemoveFreeSpace(virtaddr_space_list_t* space, bool free);
+    void AppendSpace(virtaddr_space_list_t* list, virtaddr_space_list_t* space);
+    void RemoveSpace(virtaddr_space_list_t* list, virtaddr_space_list_t* space, bool free);
 };
 
 typedef uint8_t unmap_flags;
@@ -107,8 +122,10 @@ typedef uint8_t unmap_flags;
 # define UNMAP_NOFREE 0b1
 
 void map_vmem(uintptr_t vaddr);
-void unmap_vmem(virtaddr_t virtaddr, unmap_flags flags);
+void unmap_vmem(uintptr_t vaddr, unmap_flags flags);
 bool is_address_mapped(void *addr);
 void *map_bootstrap_page(void);
+void unmap_identity_mapping(void);
+void unmap_vmem_kernel_bootstrap(void);
 
 #endif//!VIRTUAL_MEMORY_HPP
